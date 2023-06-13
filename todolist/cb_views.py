@@ -14,6 +14,7 @@ class PostsList(generic.ListView):
     template_name = "todolist/home.html"
     context_object_name = "posts"
     paginate_by = 30
+    page_kwarg = "p"
 
     def get_queryset(self):
         """

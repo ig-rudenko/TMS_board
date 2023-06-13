@@ -126,7 +126,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static-files/'  # Префикс для загрузки статических файлов
+STATIC_URL = 'static/'  # Префикс для загрузки статических файлов
 
 STATICFILES_DIRS = [
     BASE_DIR / 'static'

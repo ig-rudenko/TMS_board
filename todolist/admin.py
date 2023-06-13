@@ -21,6 +21,7 @@ class PostAdmin(admin.ModelAdmin):  # Класс админки
     ]
     search_fields = ["title", "content"]
     list_filter = ["user", "tags"]
+    filter_horizontal = ["tags"]
     list_per_page = 20
     date_hierarchy = "created"
     ordering = ['-comments__count']

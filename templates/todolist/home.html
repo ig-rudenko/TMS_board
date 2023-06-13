@@ -41,14 +41,6 @@
                         {{ post.comments__count }}
                     </h6>
 
-                    <div>
-                        {% for foo in post %}
-
-                        {% endfor %}
-
-                    </div>
-
-
                     <a href="{% url 'posts:show' post.id %}" class="btn btn-outline-primary">Посмотреть</a>
 
                     {% if post.user__username == request.user.username %}
@@ -71,4 +63,8 @@
         {% endfor %}
     </div>
 </div>
+
+
+{% include 'paginator.html' %}
+
 {% endblock %}
