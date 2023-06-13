@@ -1,0 +1,22 @@
+<h4>Комментарии</h4>
+<div class="list-group">
+
+    {% for comment in comments %}
+        <a href="#" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+          <img src="https://ui-avatars.com/api/?size=48&name={{ comment.username }}&font-size=0.33&background=random&rounded=true" class="center-block" alt="{{ comment.username }}">
+          <div class="d-flex gap-2 w-100 justify-content-between">
+            <div>
+              <h6 class="mb-0">{{ comment.username }} ({{ comment.email }})</h6>
+              <p class="mb-0 opacity-75">{{ comment.content }}</p>
+            </div>
+            <small class="opacity-50 text-nowrap">{{ comment.created }}</small>
+          </div>
+        </a>
+
+    {% empty %}
+
+        <h6 style="text-align: center">У этой заметки пока нет комментариев</h6>
+
+    {% endfor %}
+
+</div>

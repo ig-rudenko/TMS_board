@@ -1,0 +1,31 @@
+
+<p style="text-align: center">
+  <a class="btn btn-outline-primary" data-bs-toggle="collapse" href="#commentForm" role="button" aria-expanded="false" aria-controls="commentForm">
+    Оставить комментарий
+  </a>
+</p>
+
+<div class="collapse" id="commentForm">
+    <form action="{% url 'posts:comment_add' post_id %}" method="post">
+
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label for="username-id" class="form-label">Username</label>
+          <input type="text" required name="user" class="form-control" id="username-id">
+        </div>
+        <div class="mb-3">
+          <label for="email-id" class="form-label">Email address</label>
+          <input type="email" required name="email" class="form-control" id="email-id" placeholder="name@example.com">
+        </div>
+        <div class="mb-3">
+          <label for="comment-id" class="form-label">Comment</label>
+          <textarea class="form-control" required name="content" id="comment-id" rows="3"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-outline-success">
+            Отправить
+        </button>
+
+    </form>
+</div>

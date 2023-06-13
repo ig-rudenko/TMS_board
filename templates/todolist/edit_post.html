@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit: {{ post.title }}</title>
+</head>
+<body>
+
+    <div>
+        {% for error in errors %}
+
+            <p style="background-color: #d9696a; color: white; padding: 10px; border-radius: 10px">
+                {{ error }}
+            </p>
+
+        {% endfor %}
+    </div>
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        <div>
+            <label>
+                Заголовок
+                <input name="title" value="{{ post.title }}">
+            </label>
+        </div>
+
+        <div>
+            <select class="form-select" multiple aria-label="multiple select example">
+              <option selected>Выберите </option>
+              <option value="1">One</option>
+              <option value="2">Two</option>
+              <option value="3">Three</option>
+            </select>
+        </div>
+
+        <div>
+            <label>
+                Содержимое
+                <textarea name="text">{{ post.content }}</textarea>
+            </label>
+        </div>
+
+        <input type="submit" value="Отправить">
+
+    </form>
+
+</body>
+</html>

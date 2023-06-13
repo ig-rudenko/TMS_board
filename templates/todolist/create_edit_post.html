@@ -1,0 +1,69 @@
+{% extends "todolist/base.html" %}
+
+{% block content %}
+
+<div class="container w-50 m-auto">
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <div class="input-group has-validation">
+              <div class="form-floating {% if validator and not validator.title.is_valid %}is-invalid{% endif %}">
+
+                <input type="text" name="title" id="note-title" value="{{ validator.title.value }}"
+                       class="form-control {% if validator and not validator.title.is_valid %}is-invalid{% endif %}">
+                <label for="note-title">Заголовок</label>
+              </div>
+
+            {% if validator and not validator.title.is_valid %}
+              <div class="invalid-feedback">
+                {% for error in validator.title.errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <div>
+                <select name="tags" class="form-select" multiple aria-label="multiple select example">
+                    <option selected>Open this select menu</option>
+                    {% for tag_name in tags_list %}
+                        <option value="{{ tag_name }}">{{ tag_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+
+        <div class="mb-3">
+
+            <div class="input-group has-validation">
+
+                <div class="form-floating {% if validator and not validator.content.is_valid %}is-invalid{% endif %}">
+                    <textarea class="form-control {% if validator and not validator.content.is_valid %}is-invalid{% endif %}"
+                              name="content" id="note-content" rows="6">{{ validator.content.value }}</textarea>
+                    <label for="note-content" class="form-label">Содержимое заметки</label>
+                </div>
+
+                {% if validator and not validator.content.is_valid %}
+                  <div class="invalid-feedback">
+                    {% for error in validator.content.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+            </div>
+
+        </div>
+
+        <button class="btn btn-outline-success" type="submit">Создать</button>
+
+    </form>
+</div>
+
+{% endblock %}
