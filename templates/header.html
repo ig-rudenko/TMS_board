@@ -9,8 +9,11 @@
         {% endif %}
         </ul>
 
-        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
-          <input type="search" class="form-control" placeholder="Search..." aria-label="Search">
+        <form action="{% url 'posts:home' %}" method="get"
+              class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
+          <input type="search"
+                 value="{{ request.GET.search }}"
+                 name="search" class="form-control" placeholder="Search..." aria-label="Search">
         </form>
 
         <div class="dropdown text-end">
@@ -27,10 +30,9 @@
           <ul class="dropdown-menu text-small">
               {% if request.user.is_authenticated %}
                 <li><a class="dropdown-item" href="#">Profile</a></li>
-                <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">Logout</a></li>
               {% else %}
-                <li><a class="dropdown-item" href="#">Register</a></li>
+                <li><a class="dropdown-item" href="{% url 'register' %}">Register</a></li>
                 <li><a class="dropdown-item" href="{% url 'accounts:login' %}">Login</a></li>
               {% endif %}
           </ul>

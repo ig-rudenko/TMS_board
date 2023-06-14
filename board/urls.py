@@ -16,12 +16,20 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from todolist.cb_views import PostsList
+from todolist.views import PostsList
+from user.views import Register
 
 
 urlpatterns = [
     path("", PostsList.as_view()),
-    path('admin/', admin.site.urls),
+    path("admin/", admin.site.urls),
     path("posts/", include("todolist.urls", namespace="posts")),
-    path("accounts/", include(("django.contrib.auth.urls", "django.contrib.auth"), namespace="accounts"))
+    path("accounts/register", Register.as_view(), name="register"),
+    path(
+        "accounts/",
+        include(
+            ("django.contrib.auth.urls", "django.contrib.auth"), namespace="accounts"
+        ),
+    ),
+    path("captcha/", include("captcha.urls")),
 ]

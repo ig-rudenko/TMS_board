@@ -1,78 +1,86 @@
 from django.shortcuts import render, redirect, get_object_or_404, reverse
-from django.http import HttpResponseNotAllowed
+from django.views import generic
+from django.urls import reverse_lazy
+from django.http import Http404, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.db.models import Count
 
-from .models import Post
-
-
-def home(request):
-    """
-    Отображение всех заметок на главной странице
-    :param request: Обязательный, всегда, первый, запрос от пользователя.
-    :return:
-    """
-
-    posts = Post.objects.all()  # QuerySet все заметки
-    return render(request, "todolist/home.html", {"posts": posts})
+from .forms import PostForm
+from .models import Post, Comment
+from .filters import PostFilter
 
 
-@login_required
-def create_post(request):
-    """
-    Создание новых заметок
-    """
+class PostsList(generic.ListView):
+    template_name = "todolist/home.html"
+    context_object_name = "posts"
+    paginate_by = 30
+    page_kwarg = "p"
 
-    errors = []
+    def get_queryset(self):
+        """
+        Формирует `QuerySet` всех заметок и возвращает поля `id`, `title`, `created`,
+        имя пользователя, создавшего заметку и кол-во комментариев к ней.
 
-    if request.method == "POST":
-        title = request.POST.get("title")
-        content = request.POST.get("text")
-
-        if not title or not content and len(title) <= 300 and len(content) <= 30_000:
-            errors.append("Укажите заголовок и содержимое заметки")
-
-        else:
-
-            post = Post(title=title, content=content, user=request.user)
-            post.save()
-
-            return redirect(reverse("post_show", kwargs={"post_id": post.id}))
-
-    return render(request, "todolist/create_post.html", {"errors": errors})
+        :return Возвращает `QuerySet` словарей.
+        """
+        return PostFilter(
+            self.request.GET,
+            queryset=Post.objects.all()
+            .select_related("user")
+            .annotate(Count("comments"))
+            .values("id", "title", "created", "user__username", "comments__count")
+            .order_by("-comments__count"),
+        ).qs
 
 
-def show_post(request, post_id: int):
-    return render(request, "todolist/show_post.html", {"post": get_object_or_404(Post, id=post_id)})
+class ShowPost(generic.DetailView):
+    queryset = Post.objects.prefetch_related("tags")  # Откуда вытянуть
+    pk_url_kwarg = "post_id"  # Где брать ID объекта в URL?  Из `urls.py`!
+    template_name = "todolist/show_post.html"  # Шаблон, куда вернуть
+    context_object_name = "post"  # Под каким именем вернуть в шаблон
 
 
-@login_required
-def edit_post(request, post_id: int):
-    post = get_object_or_404(Post, id=post_id)
-    errors = []
+@method_decorator(login_required, name="dispatch")
+class DeletePost(generic.DeleteView):
+    queryset = Post.objects
+    model = Post
+    pk_url_kwarg = "post_id"  # Где брать ID объекта в URL?  Из `urls.py`!
+    success_url = reverse_lazy("posts:home")
 
-    if request.method == "POST":
-        title = request.POST.get("title")
-        content = request.POST.get("text")
-
-        post.title = title
-        post.content = content
-
-        if not title or not content:
-            errors.append("Укажите заголовок и содержимое заметки")
-
-        else:
-            post.save()
-
-            return redirect(reverse("post_show", kwargs={"post_id": post_id}))
-
-    return render(request, "todolist/edit_post.html", {"errors": errors, "post": post})
+    def form_valid(self, form):
+        if self.object.user != self.request.user:
+            return HttpResponseForbidden()
+        return super().form_valid(form)
 
 
-@login_required
-def delete_post(request, post_id: int):
-    if request.method != "POST":
-        return HttpResponseNotAllowed(permitted_methods=["POST"])
+@method_decorator(login_required, name="dispatch")
+class CreatePost(generic.CreateView):
+    model = Post
+    form_class = PostForm
+    pk_url_kwarg = "post_id"
+    template_name = "todolist/edit_post.html"
 
-    post = get_object_or_404(Post, id=post_id)
-    post.delete()
-    return redirect(reverse("home"))
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+
+@method_decorator(login_required, name="dispatch")
+class EditPost(generic.UpdateView):
+    model = Post
+    form_class = PostForm
+    pk_url_kwarg = "post_id"
+    template_name = "todolist/edit_post.html"
+
+
+class CommentAdd(generic.View):
+    def post(self, request, post_id: int):
+        post = get_object_or_404(Post, id=post_id)
+
+        user = request.POST.get("user", "")
+        email = request.POST.get("email", "")
+        content = request.POST.get("content", "")
+
+        Comment.objects.create(username=user, email=email, content=content, post=post)
+        return redirect(reverse("posts:show", kwargs={"post_id": post.id}))

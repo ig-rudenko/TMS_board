@@ -1,9 +1,9 @@
-{% extends "todolist/base.html" %}
+{% extends "base.html" %}
 
 
 {% block content %}
 
-    <div class="container w-50">
+    <div class="container py-5">
         <h1 class="display-4">{{ post.title }}</h1>
 
         <span style="border-radius: 5px; background-color: #6f95e8; color: white; padding: 5px">
@@ -16,6 +16,8 @@
             {% endfor %}
         </div>
 
+        {% if post.user == request.user %}
+
         <a href="{% url 'posts:edit' post.id %}" style="border-radius: 5px; background-color: #ffae7d; color: white; padding: 5px">
             Изменить
         </a>
@@ -24,6 +26,8 @@
             {% csrf_token %}
             <input type="submit" style="border-radius: 5px; background-color: #ff7d7d; color: white; padding: 5px" value="Удалить">
         </form>
+
+        {% endif %}
 
         <div style="margin: 20px">
             {{ post.content | safe }}

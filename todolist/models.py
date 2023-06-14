@@ -1,3 +1,4 @@
+from django.shortcuts import redirect, reverse
 from django.db import models
 
 
@@ -9,6 +10,9 @@ class Post(models.Model):
     )
     content = models.TextField()
     tags = models.ManyToManyField("todolist.Tag", related_name="posts")
+
+    def get_absolute_url(self):
+        return reverse("posts:show", kwargs={"post_id": self.id})
 
     class Meta:
         ordering = ["-created"]
