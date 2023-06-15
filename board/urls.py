@@ -23,6 +23,7 @@ from user.views import Register
 urlpatterns = [
     path("", PostsList.as_view()),
     path("admin/", admin.site.urls),
+    path("api/posts/", include("todolist.api.urls")),
     path("posts/", include("todolist.urls", namespace="posts")),
     path("accounts/register", Register.as_view(), name="register"),
     path(
@@ -32,4 +33,5 @@ urlpatterns = [
         ),
     ),
     path("captcha/", include("captcha.urls")),
+    path("api-auth/", include("rest_framework.urls")),
 ]
