@@ -5,6 +5,7 @@ from django import forms
 from django.db.models import Count
 from django.utils.html import format_html
 from django.shortcuts import reverse
+from django.contrib.sessions.models import Session
 
 from .models import Post, Tag
 
@@ -85,3 +86,12 @@ class TagAdmin(admin.ModelAdmin):
            <circle cx="10" cy="10" r="10" stroke="black" stroke-width="2" fill="{obj.color}" />
         </svg>"""
         )
+
+
+@admin.register(Session)
+class SessionAdmin(admin.ModelAdmin):
+    list_display = ["session_key", "_session_data", "expire_date"]
+
+    def _session_data(self, obj: Session):
+        return obj.get_decoded()
+
