@@ -25,6 +25,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/posts/", include("todolist.api.urls")),
     path("posts/", include("todolist.urls", namespace="posts")),
+    path("user/", include("user.urls", namespace="user")),
     path("accounts/register", Register.as_view(), name="register"),
     path(
         "accounts/",
