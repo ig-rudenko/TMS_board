@@ -18,6 +18,9 @@ django-simple-captcha = "^0.5.17"
 djangorestframework = "^3.14.0"
 markdown = "^3.4.3"
 requests = "^2.31.0"
+django-jazzmin = "^2.6.0"
+djoser = "^2.2.0"
+djangorestframework-simplejwt = "^5.2.2"
 
 
 [build-system]

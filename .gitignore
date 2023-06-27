@@ -1,0 +1,8 @@
+.idea
+.venv
+db.sqlite3
+_test*
+/static/*
+!/static/css
+!/static/img
+!/static/js

@@ -33,5 +33,5 @@ urlpatterns = [
         ),
     ),
     path("captcha/", include("captcha.urls")),
-    path("api-auth/", include("rest_framework.urls")),
+    path("api/auth/", include("djoser.urls.authtoken")),
 ]
