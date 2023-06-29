@@ -16,9 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+
 from todolist.views import PostsList
 from user.views import Register
 
+# /
 
 urlpatterns = [
     path("", PostsList.as_view()),
@@ -36,3 +39,8 @@ urlpatterns = [
     path("captcha/", include("captcha.urls")),
     path("api/auth/", include("djoser.urls.authtoken")),
 ]
+
+if settings.DEBUG:
+    urlpatterns += [
+        path("__debug__/", include("debug_toolbar.urls")),
+    ]

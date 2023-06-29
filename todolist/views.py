@@ -1,23 +1,62 @@
 from django.shortcuts import redirect, get_object_or_404, reverse
 from django.views import generic
 from django.urls import reverse_lazy
-from django.http import HttpResponseForbidden, JsonResponse
+from django.http import HttpResponseForbidden
+from django.core.cache import cache
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.db.models import Count
+from django.db.models import QuerySet
 
 from .forms import PostForm
 from .models import Post, Comment
 from .filters import PostFilter
+from .paginator import CachedPaginator
 
 
 class PostsList(generic.ListView):
     template_name = "todolist/home.html"
     context_object_name = "posts"
-    paginate_by = 30
     page_kwarg = "p"
+    cache_timeout = 50
+    paginate_by = 30
+    paginator_class = CachedPaginator
 
-    def get_queryset(self):
+    def paginate_queryset(self, queryset, page_size):
+        key_prefix = settings.CACHES["default"]["KEY_PREFIX"]
+
+        paginator = self.get_paginator(
+            queryset,
+            page_size,
+            orphans=self.get_paginate_orphans(),
+            allow_empty_first_page=self.get_allow_empty(),
+            cache_name=f"{key_prefix}.CachedPaginator.posts_count",
+            cache_timeout=self.cache_timeout,
+        )
+        page_number = (
+            self.kwargs.get(self.page_kwarg)
+            or self.request.GET.get(self.page_kwarg)
+            or 1
+        )
+
+        page = paginator.page(page_number)
+        page_object_list = self.get_cached_page_object_list(page)
+
+        return paginator, page, page_object_list, page.has_other_pages()
+
+    def get_cached_page_object_list(self, page):
+        # Названия ключа для кэша
+        cache_key = f'{settings.CACHES["default"]["KEY_PREFIX"]}.PostsList.{self.request.get_full_path()}'
+
+        page_object_list = cache.get(cache_key)
+        if page_object_list is None:
+            page_object_list = list(page.object_list)  # Обращение к БД
+            cache.set(cache_key, page_object_list, timeout=self.cache_timeout)
+
+        return page_object_list
+
+    def get_queryset(self) -> QuerySet[dict]:
         """
         Формирует `QuerySet` всех заметок и возвращает поля `id`, `title`, `created`,
         имя пользователя, создавшего заметку и кол-во комментариев к ней.

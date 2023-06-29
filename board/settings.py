@@ -27,6 +27,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
+if DEBUG:
+    INTERNAL_IPS = [
+        "127.0.0.1",
+    ]
 
 # Application definition
 
@@ -49,6 +53,11 @@ INSTALLED_APPS = [
     "djoser",
 ]
 
+if DEBUG:
+    INSTALLED_APPS += [
+        "debug_toolbar",
+    ]
+
 AUTH_USER_MODEL = "user.User"
 
 MIDDLEWARE = [
@@ -61,6 +70,11 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+if DEBUG:
+    MIDDLEWARE += [
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+    ]
 
 ROOT_URLCONF = "board.urls"
 
@@ -94,6 +108,18 @@ DATABASES = {
         "NAME": "board_db",
         "HOST": "localhost",
         "PORT": "5432",
+    }
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379",
+        "TIMEOUT": 300,
+        "KEY_PREFIX": "",
+        "OPTIONS": {
+            "db": "0",
+        },
     }
 }
 
