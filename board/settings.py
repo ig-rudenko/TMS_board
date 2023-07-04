@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+import os
 from datetime import timedelta
 from pathlib import Path
 
@@ -20,10 +21,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-g%&9oyc8t-v98z45k7faax^cu5=+75bl3p+-#gqrlihbli201g"
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG: bool = os.getenv("DJANGO_DEBUG", "0") == "1"
 
 ALLOWED_HOSTS = ["*"]
 
@@ -103,18 +104,28 @@ WSGI_APPLICATION = "board.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "USER": "board_user",
-        "PASSWORD": "board_user",
-        "NAME": "board_db",
-        "HOST": "localhost",
-        "PORT": "5432",
+        "USER": os.getenv("PG_USER"),
+        "PASSWORD": os.getenv("PG_PASSWORD"),
+        "NAME": os.getenv("PG_NAME"),
+        "HOST": os.getenv("PG_HOST", "localhost"),
+        "PORT": os.getenv("PG_PORT", "5432"),
     }
 }
+
+REDIS_HOST = os.getenv("REDIS_HOST")
+REDIS_PORT = os.getenv("REDIS_PORT")
+REDIS_USER = os.getenv("REDIS_USER")
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+
+if REDIS_USER and REDIS_PASSWORD:
+    REDIS_AUTH = f"{REDIS_USER}:{REDIS_PASSWORD}@"
+else:
+    REDIS_AUTH = ""
 
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379",
+        "LOCATION": f"redis://{REDIS_AUTH}{REDIS_HOST}:{REDIS_PORT}",
         "TIMEOUT": 300,
         "KEY_PREFIX": "",
         "OPTIONS": {
@@ -201,7 +212,7 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": True,
     "ALGORITHM": "HS256",
-    "SIGNING_KEY": "django-insecure-ps-kvzr0p+*op_mwx#k#i!u9j%i90()b&2hf*8%oj9j=ld+_=b",
+    "SIGNING_KEY": os.getenv("JWT_SIGNING_KEY"),
     "VERIFYING_KEY": "",
     "AUDIENCE": None,
     "ISSUER": None,
