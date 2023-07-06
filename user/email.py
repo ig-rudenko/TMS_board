@@ -4,7 +4,6 @@ from django.utils.http import urlsafe_base64_encode
 from django.contrib.auth.models import AbstractUser
 from django.core.mail import EmailMultiAlternatives
 from django.contrib.auth.tokens import default_token_generator
-from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 
 
@@ -12,8 +11,8 @@ class BaseEmailSender:
     template_name = ""
     user_field = "id"
 
-    def __init__(self, request: HttpRequest, user: AbstractUser):
-        self._request = request
+    def __init__(self, current_site: str, user: AbstractUser):
+        self.current_site = current_site
         self._user = user
 
     def get_template_name(self) -> str:
@@ -22,7 +21,7 @@ class BaseEmailSender:
         return self.template_name
 
     def get_domain(self) -> str:
-        return get_current_site(self._request)
+        return self.current_site
 
     def get_uid_base64(self) -> str:
         user_field_data = getattr(self._user, self.user_field)

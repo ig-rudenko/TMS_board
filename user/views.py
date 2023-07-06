@@ -5,9 +5,11 @@ from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
+from django.contrib.sites.shortcuts import get_current_site
 
 from .forms import UserRegisterForm, ResetPasswordForm, EmailForm
 from .email import RegisterConfirmEmailSender, ResetPasswordEmailSender
+from .tasks import send_register_email
 
 
 class Register(View):
@@ -26,9 +28,10 @@ class Register(View):
         user.is_active = False
         user.save()
 
-        # Email
-        email_sender = RegisterConfirmEmailSender(request, user)
-        email_sender.send_email()
+        current_site = str(get_current_site(request))
+
+        # Email Task
+        send_register_email.delay(current_site, user.id)
 
         return redirect(reverse("accounts:login"))
 
