@@ -1,0 +1,17 @@
+Django
+psycopg2-binary
+faker
+django-ckeditor
+django-filter
+django-crispy-forms
+crispy-bootstrap5
+django-simple-captcha
+djangorestframework
+markdown
+requests
+django-jazzmin
+djoser
+djangorestframework-simplejwt
+redis
+gunicorn
+celery

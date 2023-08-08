@@ -1,0 +1,89 @@
+version: "3.9"
+
+services:
+
+  web-server:
+    image: nginx:stable-alpine
+    volumes:
+      - "./settings/nginx/default.conf:/etc/nginx/conf.d/default.conf"
+      - "./media:/var/www/media/"
+      - "./static:/var/www/static/"
+
+    ports:
+      - "8000:80"
+      - "8443:443"
+
+    depends_on:
+      - backend1
+      - backend2
+
+  database-service:
+    image: postgres
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: pgpassword
+      POSTGRES_DB: board
+
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
+      start_period: 5s
+      timeout: 10s
+      interval: 5s
+      retries: 5
+
+    volumes:
+      - "./pg_data:/var/lib/postgresql/data"
+
+
+  redis:
+    image: redis
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+
+  celery-woker1: &backend
+    build: .
+    image: board:v3.1
+    command: celery -A board worker -c 2 -l INFO -n worker1
+
+    environment:
+      DJANGO_DEBUG: 0
+      DJANGO_SECRET_KEY: 03je90h90erh28h18hef8hwsdhfohs0adfjh-sadf7asd7
+      PG_USER: pguser
+      PG_PASSWORD: pgpassword
+      PG_NAME: board
+      PG_HOST: database-service  # домен (вместо IP)
+      PG_PORT: 5432
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SIGNING_KEY: u9yw0e9yr12790341927546129n03491023946190263904
+
+    depends_on:
+      database-service:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+
+  celery-woker2:
+    <<: *backend
+    command: celery -A board worker -c 2 -l INFO -n worker2
+
+
+  celery-beat:
+    <<: *backend
+    command: /bin/sh /app/settings/run/celery-beat.sh
+
+
+  backend1:
+    <<: *backend
+    command: /bin/sh /app/settings/run/backend.sh
+
+
+  backend2:
+    <<: *backend
+    command: /bin/sh /app/settings/run/backend.sh
