@@ -1,4 +1,4 @@
-from django.shortcuts import redirect, reverse
+from django.shortcuts import reverse
 from django.db import models
 
 
@@ -55,4 +55,3 @@ class Comment(models.Model):
 
     def __repr__(self):
         return f"Comment: <{self.username}> <{len(self.content)}>"
-

@@ -7,3 +7,4 @@ _test*
 !/static/img
 !/static/js
 pg_data
+cache

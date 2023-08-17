@@ -47,7 +47,7 @@ services:
 
   celery-woker1: &backend
     build: .
-    image: board:v3.1
+    image: board:v3.2
     command: celery -A board worker -c 2 -l INFO -n worker1
 
     environment:

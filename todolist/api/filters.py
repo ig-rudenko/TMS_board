@@ -1,5 +1,5 @@
-from django_filters import rest_framework as rest_filters
 from django.db.models import QuerySet, Q
+from django_filters import rest_framework as rest_filters
 
 from todolist.models import Post
 
