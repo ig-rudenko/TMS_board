@@ -9,6 +9,7 @@ from django.utils.decorators import method_decorator
 from django.db.models import Count
 from django.db.models import QuerySet
 
+from chatgpt.translators import Translator
 from .forms import PostForm
 from .models import Post, Comment
 from .filters import PostFilter
@@ -78,6 +79,12 @@ class ShowPost(generic.DetailView):
     pk_url_kwarg = "post_id"  # Где брать ID объекта в URL?  Из `urls.py`!
     template_name = "todolist/show_post.html"  # Шаблон, куда вернуть
     context_object_name = "post"  # Под каким именем вернуть в шаблон
+
+    def get_object(self, queryset=None):
+        post: Post = super().get_object(queryset)
+        # Перевод заметки
+        post.content = Translator(post.content).to_eng()
+        return post
 
 
 @method_decorator(login_required, name="dispatch")
