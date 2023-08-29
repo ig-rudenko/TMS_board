@@ -13,6 +13,7 @@ from .forms import PostForm
 from .models import Post, Comment
 from .filters import PostFilter
 from .paginator import CachedPaginator
+from .tg_notifier import tg_notify
 
 
 class PostsList(generic.ListView):
@@ -78,6 +79,17 @@ class ShowPost(generic.DetailView):
     pk_url_kwarg = "post_id"  # Где брать ID объекта в URL?  Из `urls.py`!
     template_name = "todolist/show_post.html"  # Шаблон, куда вернуть
     context_object_name = "post"  # Под каким именем вернуть в шаблон
+
+    def get(self, request, *args, **kwargs):
+        self.object: Post = self.get_object()
+
+        tg_notify.send_message(
+            message=f"Вашу заметку ({self.object.title}) сейчас смотрят!",
+            to_user_tg_id=self.object.user.tg_id,
+        )
+
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
 
 
 @method_decorator(login_required, name="dispatch")

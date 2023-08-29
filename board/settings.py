@@ -21,10 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "34y23910y4n52y34y5n28345782yt3945298345h")
+
+TG_TOKEN = os.getenv("TG_TOKEN")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG: bool = os.getenv("DJANGO_DEBUG", "0") == "1"
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -103,19 +105,15 @@ WSGI_APPLICATION = "board.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "USER": os.getenv("PG_USER"),
-        "PASSWORD": os.getenv("PG_PASSWORD"),
-        "NAME": os.getenv("PG_NAME"),
-        "HOST": os.getenv("PG_HOST", "localhost"),
-        "PORT": os.getenv("PG_PORT", "5432"),
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3"
     }
 }
 
-REDIS_HOST = os.getenv("REDIS_HOST")
-REDIS_PORT = os.getenv("REDIS_PORT")
-REDIS_USER = os.getenv("REDIS_USER")
-REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
+REDIS_PORT = os.getenv("REDIS_PORT", "6379")
+REDIS_USER = os.getenv("REDIS_USER", "")
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", "")
 
 if REDIS_USER and REDIS_PASSWORD:
     REDIS_AUTH = f"{REDIS_USER}:{REDIS_PASSWORD}@"
